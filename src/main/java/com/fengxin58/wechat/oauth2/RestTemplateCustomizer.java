@@ -1,7 +1,8 @@
-package com.cloume.techtalk.wxapp;
+package com.fengxin58.wechat.oauth2;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -44,7 +45,6 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpMessageConverterExtractor;
 import org.springframework.web.client.ResponseExtractor;
 
-import com.cloume.common.utils.MapBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
@@ -56,7 +56,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 @Configuration
 @Component
-public class MyUserInfoRestTemplateCustomizer implements UserInfoRestTemplateCustomizer {
+public class RestTemplateCustomizer implements UserInfoRestTemplateCustomizer {
 	
 	/**
 	 * 需要吧appid和secret也放到请求参数中
@@ -203,13 +203,16 @@ public class MyUserInfoRestTemplateCustomizer implements UserInfoRestTemplateCus
 						restTemplate.getOAuth2ClientContext().setAccessToken(token);
 					}
 					
+					Map<String,String> map2 = new HashMap<>();
+					map2.put("access_token", accessToken);
+					map2.put("openid", info.get("openid").toString());
+					map2.put("lang", "zh_CN");
+					
+					
 					String responseBody = restTemplate.getForEntity(
 							String.format("%s?access_token={access_token}&openid={openid}", sso.getUserInfoUri()),
 							String.class,
-							MapBuilder.begin("access_token", accessToken)
-								.and("openid", info.get("openid").toString())
-								.and("lang", "zh_CN")
-								.build()
+							map2
 							).getBody();
 					
 					Map<?, ?> map = new ObjectMapper().readValue(responseBody, Map.class);
